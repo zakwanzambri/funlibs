@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PustakaPro Library</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <h1>Welcome to PustakaPro</h1>
+    <a href="/add">Add Book</a>
+    <table>
+        <tr><th>Title</th><th>Author</th><th>Year</th><th>Actions</th></tr>
+        <% books.forEach(function(book){ %>
+            <tr>
+                <td><%= book.title %></td>
+                <td><%= book.author %></td>
+                <td><%= book.year %></td>
+                <td>
+                    <a href="/edit/<%= book.id %>">Edit</a>
+                    <form action="/delete/<%= book.id %>" method="post" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+</body>
+</html>
