@@ -1,15 +1,22 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const helmet = require('helmet');
 
 const app = express();
-const db = new sqlite3.Database('library.db');
+const PORT = process.env.PORT || 3000;
+const DB_FILE = process.env.DB_FILE || 'library.db';
+const db = new sqlite3.Database(DB_FILE);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(helmet());
+app.use(morgan('combined'));
 
 // initialize database table
 const initSql = `CREATE TABLE IF NOT EXISTS books(
@@ -19,7 +26,9 @@ const initSql = `CREATE TABLE IF NOT EXISTS books(
     year INTEGER
 );`;
 
-db.run(initSql);
+db.run(initSql, (err) => {
+    if (err) console.error('Failed to initialize database', err);
+});
 
 // routes
 app.get('/', (req, res) => {
@@ -70,5 +79,15 @@ app.post('/delete/:id', (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+// 404 handler
+app.use((req, res) => {
+    res.status(404).render('404');
+});
+
+// error handler
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).send('Server error');
+});
+
 app.listen(PORT, () => console.log(`PustakaPro running on port ${PORT}`));
