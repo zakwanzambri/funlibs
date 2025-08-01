@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PustakaPro Library</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>PustakaPro</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <a href="/add" class="button">Add Book</a>
+        </nav>
+    </header>
+    <table>
+        <tr><th>Title</th><th>Author</th><th>Year</th><th>Actions</th></tr>
+        <% books.forEach(function(book){ %>
+            <tr>
+                <td><%= book.title %></td>
+                <td><%= book.author %></td>
+                <td><%= book.year %></td>
+                <td>
+                    <a href="/edit/<%= book.id %>" class="button">Edit</a>
+                    <form action="/delete/<%= book.id %>" method="post" class="inline">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+</div>
+</body>
+</html>
