@@ -38,6 +38,15 @@ app.get('/', (req, res) => {
     });
 });
 
+// search books
+app.get('/search', (req, res) => {
+    const q = `%${req.query.q || ''}%`;
+    db.all('SELECT * FROM books WHERE title LIKE ? OR author LIKE ?', [q, q], (err, rows) => {
+        if (err) return res.status(500).send(err.toString());
+        res.render('index', { books: rows });
+    });
+});
+
 app.get('/add', (req, res) => {
     res.render('add');
 });
@@ -57,6 +66,15 @@ app.get('/edit/:id', (req, res) => {
     db.get('SELECT * FROM books WHERE id = ?', [id], (err, row) => {
         if (err) return res.status(500).send(err.toString());
         res.render('edit', { book: row });
+    });
+});
+
+app.get('/book/:id', (req, res) => {
+    const id = req.params.id;
+    db.get('SELECT * FROM books WHERE id = ?', [id], (err, row) => {
+        if (err) return res.status(500).send(err.toString());
+        if (!row) return res.status(404).render('404');
+        res.render('show', { book: row });
     });
 });
 

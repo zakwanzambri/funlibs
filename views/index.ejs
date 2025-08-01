@@ -14,6 +14,10 @@
             <a href="/add" class="button">Add Book</a>
         </nav>
     </header>
+    <form method="get" action="/search" class="search">
+        <input type="text" name="q" placeholder="Search books">
+        <button type="submit">Search</button>
+    </form>
     <table>
         <tr><th>Title</th><th>Author</th><th>Year</th><th>Actions</th></tr>
         <% books.forEach(function(book){ %>
@@ -22,6 +26,7 @@
                 <td><%= book.author %></td>
                 <td><%= book.year %></td>
                 <td>
+                    <a href="/book/<%= book.id %>" class="button">View</a>
                     <a href="/edit/<%= book.id %>" class="button">Edit</a>
                     <form action="/delete/<%= book.id %>" method="post" class="inline">
                         <button type="submit">Delete</button>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title><%= book.title %> - PustakaPro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><%= book.title %></h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <a href="/edit/<%= book.id %>" class="button">Edit</a>
+        </nav>
+    </header>
+    <p><strong>Author:</strong> <%= book.author %></p>
+    <p><strong>Year:</strong> <%= book.year %></p>
+</div>
+</body>
+</html>
