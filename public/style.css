@@ -80,3 +80,11 @@ button:hover, .button:hover {
 form.inline {
     display: inline;
 }
+
+.search {
+    margin: 10px 0;
+}
+
+.search input[type="text"] {
+    width: 50%;
+}

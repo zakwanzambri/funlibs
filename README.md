@@ -5,8 +5,10 @@ PustakaPro is a lightweight library management web application built with **Node
 ## Features
 
 - View all stored books
+- Search books by title or author
 - Add new books with title, author and optional publication year
 - Edit or delete existing entries
+- View details of individual books
 - Simple EJS views and CSS for quick customization
 - Production middleware for logging and security
 
@@ -31,6 +33,11 @@ npm start
 ```
 
 The application defaults to `http://localhost:3000`. Use the `PORT` and `DB_FILE` variables in `.env` to customize.
+
+## Usage
+
+- Search for books using the form on the home page.
+- Click a book's **View** button to see its details.
 
 ## Database
 
