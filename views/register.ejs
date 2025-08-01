@@ -13,6 +13,9 @@
             <a href="/" class="button">Home</a>
         </nav>
     </header>
+    <% if (error) { %>
+        <p class="error"><%= error %></p>
+    <% } %>
     <form method="post" action="/register">
         <label>Username:<br><input type="text" name="username" required></label>
         <label>Password:<br><input type="password" name="password" required></label>

@@ -11,6 +11,7 @@
         <h1>Edit Book</h1>
         <nav>
             <a href="/" class="button">Home</a>
+            <span class="user">Welcome, <%= username %></span>
             <a href="/logout" class="button">Logout</a>
         </nav>
     </header>
@@ -33,6 +34,7 @@
             </select>
         </label>
         <label>ISBN:<br><input type="text" name="isbn" value="<%= book.isbn %>"></label>
+        <label>Description:<br><textarea name="description"><%= book.description %></textarea></label>
         <label>Image URL:<br><input type="text" name="image" value="<%= book.image %>"></label>
         <button type="submit">Save</button>
     </form>

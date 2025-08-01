@@ -12,6 +12,7 @@
         <nav>
             <a href="/" class="button">Home</a>
             <% if (userId) { %>
+                <span class="user">Welcome, <%= username %></span>
                 <a href="/add" class="button">Add Book</a>
                 <a href="/logout" class="button">Logout</a>
             <% } else { %>
@@ -37,7 +38,7 @@
         <button type="submit">Search</button>
     </form>
     <table>
-        <tr><th>Image</th><th>Title</th><th>Author</th><th>Year</th><th>Genre</th><th>Status</th><th>ISBN</th><th>Actions</th></tr>
+        <tr><th>Image</th><th>Title</th><th>Author</th><th>Year</th><th>Genre</th><th>Status</th><th>ISBN</th><th>Description</th><th>Actions</th></tr>
         <% books.forEach(function(book){ %>
             <tr>
                 <td><% if(book.image){ %><img src="<%= book.image %>" alt="" width="40"><% } %></td>
@@ -47,6 +48,7 @@
                 <td><%= book.genre %></td>
                 <td><%= book.status %></td>
                 <td><%= book.isbn %></td>
+                <td><%= book.description ? book.description.substring(0,40) : '' %></td>
                 <td>
                     <% if (userId) { %>
                         <a href="/edit/<%= book.id %>" class="button">Edit</a>

@@ -5,14 +5,16 @@ PustakaPro is a lightweight library management web application built with **Node
 ## Features
 
 - View your entire book collection
-- Add books with title, author, year, genre and ISBN
+- Add books with title, author, year, genre, ISBN and description
 - Categories such as Fiction, Non-fiction and Science
 - Availability status (Available, Checked Out, Reserved)
 - Optional book cover images
+- Optional long descriptions for each book
 - Search and filter by keyword, genre and status
 - Readers can leave reviews with 1-5 star ratings
 - Register and log in with passwords hashed by **bcrypt**
-- Session-based authentication to edit or delete entries
+- Session-based authentication to edit or delete entries with friendly error messages
+- Navigation displays the logged in user name
 - Modern EJS interface with navigation and styling
 - Environment driven configuration with `.env`
 - Production middleware for logging, security headers and error pages

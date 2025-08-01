@@ -29,6 +29,9 @@ app.use(helmet());
 app.use(morgan('combined'));
 app.use((req, res, next) => {
     res.locals.userId = req.session.userId;
+    res.locals.username = req.session.username;
+    res.locals.error = req.session.error;
+    delete req.session.error;
     next();
 });
 
@@ -41,7 +44,8 @@ const bookSql = `CREATE TABLE IF NOT EXISTS books(
     genre TEXT,
     isbn TEXT,
     status TEXT DEFAULT 'Available',
-    image TEXT
+    image TEXT,
+    description TEXT
 );`;
 
 const userSql = `CREATE TABLE IF NOT EXISTS users(
@@ -104,7 +108,14 @@ app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
     db.run('INSERT INTO users(username, password) VALUES (?, ?)', [username, hash], err => {
-        if (err) return res.status(500).send(err.toString());
+        if (err) {
+            if (err.code === 'SQLITE_CONSTRAINT') {
+                req.session.error = 'Username already taken';
+                return res.redirect('/register');
+            }
+            return res.status(500).send(err.toString());
+        }
+        req.session.error = 'Registration successful. Please log in.';
         res.redirect('/login');
     });
 });
@@ -117,12 +128,17 @@ app.post('/login', (req, res) => {
     const { username, password } = req.body;
     db.get('SELECT * FROM users WHERE username=?', [username], async (err, user) => {
         if (err) return res.status(500).send(err.toString());
-        if (!user) return res.redirect('/login');
+        if (!user) {
+            req.session.error = 'Invalid credentials';
+            return res.redirect('/login');
+        }
         const ok = await bcrypt.compare(password, user.password);
         if (ok) {
             req.session.userId = user.id;
+            req.session.username = user.username;
             return res.redirect('/');
         }
+        req.session.error = 'Invalid credentials';
         res.redirect('/login');
     });
 });
@@ -138,9 +154,9 @@ app.get('/add', checkAuth, (req, res) => {
 });
 
 app.post('/add', checkAuth, (req, res) => {
-    const { title, author, year, genre, isbn, status, image } = req.body;
-    db.run('INSERT INTO books(title, author, year, genre, isbn, status, image) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [title, author, year, genre, isbn, status, image],
+    const { title, author, year, genre, isbn, status, image, description } = req.body;
+    db.run('INSERT INTO books(title, author, year, genre, isbn, status, image, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [title, author, year, genre, isbn, status, image, description],
         (err) => {
             if (err) return res.status(500).send(err.toString());
             res.redirect('/');
@@ -157,9 +173,9 @@ app.get('/edit/:id', checkAuth, (req, res) => {
 
 app.post('/edit/:id', checkAuth, (req, res) => {
     const id = req.params.id;
-    const { title, author, year, genre, isbn, status, image } = req.body;
-    db.run('UPDATE books SET title=?, author=?, year=?, genre=?, isbn=?, status=?, image=? WHERE id=?',
-        [title, author, year, genre, isbn, status, image, id],
+    const { title, author, year, genre, isbn, status, image, description } = req.body;
+    db.run('UPDATE books SET title=?, author=?, year=?, genre=?, isbn=?, status=?, image=?, description=? WHERE id=?',
+        [title, author, year, genre, isbn, status, image, description, id],
         (err) => {
             if (err) return res.status(500).send(err.toString());
             res.redirect('/');

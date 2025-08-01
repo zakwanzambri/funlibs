@@ -11,6 +11,7 @@
         <h1><%= book.title %></h1>
         <nav>
             <a href="/" class="button">Home</a>
+            <% if (username) { %><span class="user">Welcome, <%= username %></span><% } %>
         </nav>
     </header>
     <% if(book.image){ %>
@@ -21,6 +22,9 @@
     <p><strong>Genre:</strong> <%= book.genre %></p>
     <p><strong>Status:</strong> <%= book.status %></p>
     <p><strong>ISBN:</strong> <%= book.isbn %></p>
+    <% if (book.description) { %>
+        <p><strong>Description:</strong> <%= book.description %></p>
+    <% } %>
     <% if(avg){ %>
         <p><strong>Average Rating:</strong> <%= avg %>/5</p>
     <% } %>
