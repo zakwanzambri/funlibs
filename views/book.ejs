@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title><%= book.title %> - PustakaPro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><%= book.title %></h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <% if (username) { %><span class="user">Welcome, <%= username %></span><% } %>
+        </nav>
+    </header>
+    <% if(book.image){ %>
+        <p><img src="<%= book.image %>" alt="" width="120"></p>
+    <% } %>
+    <p><strong>Author:</strong> <%= book.author %></p>
+    <p><strong>Year:</strong> <%= book.year %></p>
+    <p><strong>Genre:</strong> <%= book.genre %></p>
+    <p><strong>Status:</strong> <%= book.status %></p>
+    <p><strong>ISBN:</strong> <%= book.isbn %></p>
+    <% if (book.description) { %>
+        <p><strong>Description:</strong> <%= book.description %></p>
+    <% } %>
+    <% if(avg){ %>
+        <p><strong>Average Rating:</strong> <%= avg %>/5</p>
+    <% } %>
+    <h2>Reviews</h2>
+    <ul>
+        <% reviews.forEach(function(r){ %>
+            <li><strong><%= r.reviewer %></strong> rated <%= r.rating %>/5 - <%= r.comment %></li>
+        <% }) %>
+    </ul>
+    <h3>Add Review</h3>
+    <form method="post" action="/book/<%= book.id %>/review">
+        <label>Name:<br><input type="text" name="reviewer" required></label>
+        <label>Rating:<br><input type="number" name="rating" min="1" max="5" required></label>
+        <label>Comment:<br><input type="text" name="comment" required></label>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+</body>
+</html>

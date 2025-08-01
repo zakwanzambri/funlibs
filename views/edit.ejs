@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Book - PustakaPro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Edit Book</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <span class="user">Welcome, <%= username %></span>
+            <a href="/logout" class="button">Logout</a>
+        </nav>
+    </header>
+    <form method="post" action="/edit/<%= book.id %>">
+        <label>Title:<br><input type="text" name="title" value="<%= book.title %>" required></label>
+        <label>Author:<br><input type="text" name="author" value="<%= book.author %>" required></label>
+        <label>Year:<br><input type="number" name="year" value="<%= book.year %>"></label>
+        <label>Genre:<br>
+            <select name="genre">
+                <% categories.forEach(function(g){ %>
+                    <option value="<%= g %>" <%= book.genre===g? 'selected': '' %>><%= g %></option>
+                <% }) %>
+            </select>
+        </label>
+        <label>Status:<br>
+            <select name="status">
+                <% statuses.forEach(function(s){ %>
+                    <option value="<%= s %>" <%= book.status===s? 'selected': '' %>><%= s %></option>
+                <% }) %>
+            </select>
+        </label>
+        <label>ISBN:<br><input type="text" name="isbn" value="<%= book.isbn %>"></label>
+        <label>Description:<br><textarea name="description"><%= book.description %></textarea></label>
+        <label>Image URL:<br><input type="text" name="image" value="<%= book.image %>"></label>
+        <button type="submit">Save</button>
+    </form>
+</div>
+</body>
+</html>

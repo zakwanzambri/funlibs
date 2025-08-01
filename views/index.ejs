@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PustakaPro Library</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>PustakaPro</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <% if (userId) { %>
+                <span class="user">Welcome, <%= username %></span>
+                <a href="/add" class="button">Add Book</a>
+                <a href="/logout" class="button">Logout</a>
+            <% } else { %>
+                <a href="/login" class="button">Login</a>
+                <a href="/register" class="button">Register</a>
+            <% } %>
+        </nav>
+    </header>
+    <form method="get" action="/">
+        <input type="text" name="q" value="<%= query %>" placeholder="Search">
+        <select name="genre">
+            <option value="">All Genres</option>
+            <% categories.forEach(function(g){ %>
+                <option value="<%= g %>" <%= genre===g? 'selected': '' %>><%= g %></option>
+            <% }) %>
+        </select>
+        <select name="status">
+            <option value="">Any Status</option>
+            <% statuses.forEach(function(s){ %>
+                <option value="<%= s %>" <%= status===s? 'selected': '' %>><%= s %></option>
+            <% }) %>
+        </select>
+        <button type="submit">Search</button>
+    </form>
+    <table>
+        <tr><th>Image</th><th>Title</th><th>Author</th><th>Year</th><th>Genre</th><th>Status</th><th>ISBN</th><th>Description</th><th>Actions</th></tr>
+        <% books.forEach(function(book){ %>
+            <tr>
+                <td><% if(book.image){ %><img src="<%= book.image %>" alt="" width="40"><% } %></td>
+                <td><a href="/book/<%= book.id %>"><%= book.title %></a></td>
+                <td><%= book.author %></td>
+                <td><%= book.year %></td>
+                <td><%= book.genre %></td>
+                <td><%= book.status %></td>
+                <td><%= book.isbn %></td>
+                <td><%= book.description ? book.description.substring(0,40) : '' %></td>
+                <td>
+                    <% if (userId) { %>
+                        <a href="/edit/<%= book.id %>" class="button">Edit</a>
+                        <form action="/delete/<%= book.id %>" method="post" class="inline">
+                            <button type="submit">Delete</button>
+                        </form>
+                    <% } %>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+</div>
+</body>
+</html>
