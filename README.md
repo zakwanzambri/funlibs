@@ -40,6 +40,6 @@ The first run will create a SQLite database file specified by `DB_FILE` (default
 
 - `app.js` – main Express application
 - `views/` – EJS templates for the pages
-- `public/style.css` – basic styling
+- `public/style.css` – modern styling
 
 Additional production middleware includes logging with **morgan** and security headers via **helmet**. A simple 404 page and error handler are also provided.

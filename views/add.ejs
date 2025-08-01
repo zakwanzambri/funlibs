@@ -6,13 +6,19 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <h1>Add Book</h1>
+<div class="container">
+    <header>
+        <h1>Add Book</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+        </nav>
+    </header>
     <form method="post" action="/add">
-        <label>Title: <input type="text" name="title" required></label><br>
-        <label>Author: <input type="text" name="author" required></label><br>
-        <label>Year: <input type="number" name="year"></label><br>
+        <label>Title:<br><input type="text" name="title" required></label>
+        <label>Author:<br><input type="text" name="author" required></label>
+        <label>Year:<br><input type="number" name="year"></label>
         <button type="submit">Add</button>
     </form>
-    <a href="/">Back</a>
+</div>
 </body>
 </html>
