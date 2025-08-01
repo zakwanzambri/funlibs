@@ -11,7 +11,12 @@
         <h1><%= book.title %></h1>
         <nav>
             <a href="/" class="button">Home</a>
-            <% if (username) { %><span class="user">Welcome, <%= username %></span><% } %>
+            <% if (userId) { %>
+                <span class="user">Welcome, <%= username %></span>
+                <a href="/dashboard" class="button">Dashboard</a>
+                <a href="/profile" class="button">Profile</a>
+                <a href="/logout" class="button">Logout</a>
+            <% } %>
         </nav>
     </header>
     <% if(book.image){ %>
@@ -24,6 +29,9 @@
     <p><strong>ISBN:</strong> <%= book.isbn %></p>
     <% if (book.description) { %>
         <p><strong>Description:</strong> <%= book.description %></p>
+    <% } %>
+    <% if (userId && book.status === 'Available') { %>
+        <p><a href="/borrow/<%= book.id %>" class="button">Borrow this book</a></p>
     <% } %>
     <% if(avg){ %>
         <p><strong>Average Rating:</strong> <%= avg %>/5</p>

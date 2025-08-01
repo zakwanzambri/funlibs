@@ -11,6 +11,7 @@
         <h1>Register</h1>
         <nav>
             <a href="/" class="button">Home</a>
+            <a href="/login" class="button">Login</a>
         </nav>
     </header>
     <% if (error) { %>
@@ -19,6 +20,8 @@
     <form method="post" action="/register">
         <label>Username:<br><input type="text" name="username" required></label>
         <label>Password:<br><input type="password" name="password" required></label>
+        <label>Email:<br><input type="text" name="email" required></label>
+        <label>Contact:<br><input type="text" name="contact"></label>
         <button type="submit">Register</button>
     </form>
 </div>

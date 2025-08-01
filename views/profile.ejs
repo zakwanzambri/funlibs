@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Profile - PustakaPro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Your Profile</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <span class="user">Welcome, <%= username %></span>
+            <a href="/logout" class="button">Logout</a>
+        </nav>
+    </header>
+    <p><strong>Username:</strong> <%= user.username %></p>
+    <p><strong>Email:</strong> <%= user.email %></p>
+    <p><strong>Contact:</strong> <%= user.contact %></p>
+    <p><strong>Role:</strong> <%= user.role %></p>
+    <p><strong>Verified:</strong> <%= user.verified ? 'Yes' : 'No' %></p>
+</div>
+</body>
+</html>

@@ -16,6 +16,11 @@ PustakaPro is a lightweight library management web application built with **Node
 - Register and log in with passwords hashed by **bcrypt**
 - Session-based authentication to edit or delete entries with friendly error messages
 - Navigation displays the logged in user name
+- User profiles store email and contact information
+- Email verification before login
+- Password reset flow via unique links
+- Dashboard shows the books each user has borrowed
+- Roles for Librarian, Member and Guest control access
 - Modern EJS interface with navigation and styling
 - Environment driven configuration with `.env`
 - Production middleware for logging, security headers and error pages

@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +31,7 @@ app.use(morgan('combined'));
 app.use((req, res, next) => {
     res.locals.userId = req.session.userId;
     res.locals.username = req.session.username;
+    res.locals.role = req.session.role;
     res.locals.error = req.session.error;
     delete req.session.error;
     next();
@@ -51,7 +53,22 @@ const bookSql = `CREATE TABLE IF NOT EXISTS books(
 const userSql = `CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    email TEXT,
+    contact TEXT,
+    role TEXT DEFAULT 'Member',
+    verified INTEGER DEFAULT 0,
+    verify_token TEXT,
+    reset_token TEXT
+);`;
+
+const borrowSql = `CREATE TABLE IF NOT EXISTS borrows(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    book_id INTEGER,
+    returned INTEGER DEFAULT 0,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(book_id) REFERENCES books(id)
 );`;
 
 const reviewSql = `CREATE TABLE IF NOT EXISTS reviews(
@@ -66,6 +83,7 @@ const reviewSql = `CREATE TABLE IF NOT EXISTS reviews(
 db.serialize(() => {
     db.run(bookSql);
     db.run(userSql);
+    db.run(borrowSql);
     db.run(reviewSql);
 });
 
@@ -75,6 +93,13 @@ function checkAuth(req, res, next) {
     } else {
         res.redirect('/login');
     }
+}
+
+function checkRole(role) {
+    return function(req, res, next) {
+        if (req.session.role === role) return next();
+        res.status(403).send('Forbidden');
+    };
 }
 
 // routes
@@ -105,9 +130,11 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, email, contact } = req.body;
     const hash = await bcrypt.hash(password, 10);
-    db.run('INSERT INTO users(username, password) VALUES (?, ?)', [username, hash], err => {
+    const verifyToken = crypto.randomBytes(20).toString('hex');
+    db.run('INSERT INTO users(username, password, email, contact, verify_token) VALUES (?, ?, ?, ?, ?)',
+        [username, hash, email, contact, verifyToken], err => {
         if (err) {
             if (err.code === 'SQLITE_CONSTRAINT') {
                 req.session.error = 'Username already taken';
@@ -115,7 +142,7 @@ app.post('/register', async (req, res) => {
             }
             return res.status(500).send(err.toString());
         }
-        req.session.error = 'Registration successful. Please log in.';
+        req.session.error = `Registration successful. Verify via /verify/${verifyToken}`;
         res.redirect('/login');
     });
 });
@@ -134,8 +161,13 @@ app.post('/login', (req, res) => {
         }
         const ok = await bcrypt.compare(password, user.password);
         if (ok) {
+            if (!user.verified) {
+                req.session.error = 'Please verify your email before logging in.';
+                return res.redirect('/login');
+            }
             req.session.userId = user.id;
             req.session.username = user.username;
+            req.session.role = user.role;
             return res.redirect('/');
         }
         req.session.error = 'Invalid credentials';
@@ -149,11 +181,61 @@ app.get('/logout', (req, res) => {
     });
 });
 
-app.get('/add', checkAuth, (req, res) => {
+app.get('/profile', checkAuth, (req, res) => {
+    db.get('SELECT username, email, contact, role, verified FROM users WHERE id=?', [req.session.userId], (err, user) => {
+        if (err) return res.status(500).send(err.toString());
+        res.render('profile', { user });
+    });
+});
+
+app.get('/dashboard', checkAuth, (req, res) => {
+    db.all('SELECT books.* FROM borrows JOIN books ON books.id=borrows.book_id WHERE borrows.user_id=? AND borrows.returned=0',
+        [req.session.userId], (err, rows) => {
+            if (err) return res.status(500).send(err.toString());
+            res.render('dashboard', { books: rows });
+        });
+});
+
+app.get('/verify/:token', (req, res) => {
+    const t = req.params.token;
+    db.run('UPDATE users SET verified=1, verify_token=NULL WHERE verify_token=?', [t], function(err) {
+        if (err || this.changes === 0) return res.status(400).send('Invalid token');
+        res.send('Email verified. You may now log in.');
+    });
+});
+
+app.get('/reset', (req, res) => {
+    res.render('reset');
+});
+
+app.post('/reset', (req, res) => {
+    const { email } = req.body;
+    const token = crypto.randomBytes(20).toString('hex');
+    db.run('UPDATE users SET reset_token=? WHERE email=?', [token, email], function(err) {
+        if (err || this.changes === 0) return res.status(400).send('Email not found');
+        res.send(`Password reset link: /reset/${token}`);
+    });
+});
+
+app.get('/reset/:token', (req, res) => {
+    res.render('newpassword', { token: req.params.token });
+});
+
+app.post('/reset/:token', async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+    const hash = await bcrypt.hash(password, 10);
+    db.run('UPDATE users SET password=?, reset_token=NULL WHERE reset_token=?', [hash, token], function(err) {
+        if (err || this.changes === 0) return res.status(400).send('Invalid token');
+        res.send('Password updated.');
+    });
+});
+
+app.get('/add', checkAuth, checkRole('Librarian'), (req, res) => {
     res.render('add', { categories: CATEGORIES, statuses: STATUSES });
 });
 
-app.post('/add', checkAuth, (req, res) => {
+app.post('/add', checkAuth, checkRole('Librarian'), (req, res) => {
     const { title, author, year, genre, isbn, status, image, description } = req.body;
     db.run('INSERT INTO books(title, author, year, genre, isbn, status, image, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [title, author, year, genre, isbn, status, image, description],
@@ -163,7 +245,7 @@ app.post('/add', checkAuth, (req, res) => {
         });
 });
 
-app.get('/edit/:id', checkAuth, (req, res) => {
+app.get('/edit/:id', checkAuth, checkRole('Librarian'), (req, res) => {
     const id = req.params.id;
     db.get('SELECT * FROM books WHERE id = ?', [id], (err, row) => {
         if (err) return res.status(500).send(err.toString());
@@ -171,7 +253,7 @@ app.get('/edit/:id', checkAuth, (req, res) => {
     });
 });
 
-app.post('/edit/:id', checkAuth, (req, res) => {
+app.post('/edit/:id', checkAuth, checkRole('Librarian'), (req, res) => {
     const id = req.params.id;
     const { title, author, year, genre, isbn, status, image, description } = req.body;
     db.run('UPDATE books SET title=?, author=?, year=?, genre=?, isbn=?, status=?, image=?, description=? WHERE id=?',
@@ -182,12 +264,30 @@ app.post('/edit/:id', checkAuth, (req, res) => {
         });
 });
 
-app.post('/delete/:id', checkAuth, (req, res) => {
+app.post('/delete/:id', checkAuth, checkRole('Librarian'), (req, res) => {
     const id = req.params.id;
     db.run('DELETE FROM books WHERE id=?', [id], (err) => {
         if (err) return res.status(500).send(err.toString());
         res.redirect('/');
     });
+});
+
+app.get('/borrow/:id', checkAuth, (req, res) => {
+    const id = req.params.id;
+    db.get('SELECT status FROM books WHERE id=?', [id], (err, book) => {
+        if (err || !book) return res.status(404).render('404');
+        if (book.status !== 'Available') return res.redirect('/');
+        db.run('UPDATE books SET status="Checked Out" WHERE id=?', [id]);
+        db.run('INSERT INTO borrows(user_id, book_id) VALUES (?, ?)', [req.session.userId, id]);
+        res.redirect('/dashboard');
+    });
+});
+
+app.get('/return/:id', checkAuth, (req, res) => {
+    const id = req.params.id;
+    db.run('UPDATE books SET status="Available" WHERE id=?', [id]);
+    db.run('UPDATE borrows SET returned=1 WHERE user_id=? AND book_id=? AND returned=0', [req.session.userId, id]);
+    res.redirect('/dashboard');
 });
 
 app.get('/book/:id', (req, res) => {

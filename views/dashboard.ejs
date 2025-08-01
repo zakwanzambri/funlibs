@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - PustakaPro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Your Borrowed Books</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <span class="user">Welcome, <%= username %></span>
+            <a href="/profile" class="button">Profile</a>
+            <a href="/logout" class="button">Logout</a>
+        </nav>
+    </header>
+    <% if (books.length === 0) { %>
+        <p>No books borrowed.</p>
+    <% } else { %>
+    <table>
+        <tr><th>Title</th><th>Author</th><th>Status</th><th>Action</th></tr>
+        <% books.forEach(function(b){ %>
+        <tr>
+            <td><%= b.title %></td>
+            <td><%= b.author %></td>
+            <td><%= b.status %></td>
+            <td><a href="/return/<%= b.id %>" class="button">Return</a></td>
+        </tr>
+        <% }) %>
+    </table>
+    <% } %>
+</div>
+</body>
+</html>
