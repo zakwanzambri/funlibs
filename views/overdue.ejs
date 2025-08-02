@@ -1,24 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Overdue Books - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
-    <table>
-        <tr><th>Title</th><th>User</th><th>Due Date</th><th>Days Overdue</th></tr>
-        <% items.forEach(function(i){ %>
-            <tr>
-                <td><%= i.title %></td>
-                <td><%= i.username %></td>
-                <td><%= new Date(i.due_date).toLocaleDateString() %></td>
-                <td><%= i.days %></td>
-            </tr>
-        <% }) %>
-    </table>
-</div>
-</body>
-</html>
+<%- include('partials/head', { title: 'Overdue Books - PustakaPro', locale, userId, username, role, __ }) %>
+<h2 class="text-xl mb-2">Overdue Books</h2>
+<table class="table w-full">
+  <thead><tr><th>Title</th><th>User</th><th>Due Date</th><th>Days Overdue</th></tr></thead>
+  <tbody>
+  <% items.forEach(function(i){ %>
+    <tr>
+      <td><%= i.title %></td>
+      <td><%= i.username %></td>
+      <td><%= new Date(i.due_date).toLocaleDateString() %></td>
+      <td><%= i.days %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>

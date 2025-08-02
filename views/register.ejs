@@ -1,23 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Register - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
-    <% if (error) { %>
-        <p class="error"><%= error %></p>
-    <% } %>
-    <form method="post" action="/register">
-        <label>Username:<br><input type="text" name="username" required></label>
-        <label>Password:<br><input type="password" name="password" required></label>
-        <label>Email:<br><input type="text" name="email" required></label>
-        <label>Contact:<br><input type="text" name="contact"></label>
-        <button type="submit">Register</button>
-    </form>
-</div>
-</body>
-</html>
+<%- include('partials/head', { title: 'Register - PustakaPro', locale, userId, username, role, __ }) %>
+<% if (error) { %><script>window.flashMsg="<%= error %>"</script><% } %>
+<form method="post" action="/register" class="max-w-sm mx-auto space-y-2">
+    <label class="form-control w-full">
+        <span class="label-text">Username</span>
+        <input type="text" name="username" class="input input-bordered" required>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text">Password</span>
+        <input type="password" name="password" class="input input-bordered" required>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text">Email</span>
+        <input type="text" name="email" class="input input-bordered" required>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text">Contact</span>
+        <input type="text" name="contact" class="input input-bordered">
+    </label>
+    <button type="submit" class="btn btn-primary w-full">Register</button>
+</form>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>

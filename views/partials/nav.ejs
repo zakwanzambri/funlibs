@@ -1,22 +1,11 @@
-<header>
-    <h1>PustakaPro</h1>
-    <nav>
-        <a href="/?lang=<%= locale %>" class="button"><%= __('home') %></a>
-        <% if (userId) { %>
-            <span class="user"><%= __('welcome') %>, <%= username %></span>
-            <a href="/dashboard?lang=<%= locale %>" class="button"><%= __('dashboard') %></a>
-            <a href="/profile?lang=<%= locale %>" class="button"><%= __('profile') %></a>
-            <% if (role === 'Librarian') { %>
-                <a href="/add?lang=<%= locale %>" class="button"><%= __('add_book') %></a>
-                <a href="/reports?lang=<%= locale %>" class="button"><%= __('reports') %></a>
-            <% } %>
-            <a href="/logout" class="button"><%= __('logout') %></a>
-        <% } else { %>
-            <a href="/login?lang=<%= locale %>" class="button"><%= __('login') %></a>
-            <a href="/register?lang=<%= locale %>" class="button"><%= __('register') %></a>
-        <% } %>
-        <span class="lang">
-            <a href="?lang=en">EN</a> | <a href="?lang=id">ID</a>
-        </span>
-    </nav>
-</header>
+<div class="navbar bg-base-200">
+  <div class="flex-none lg:hidden">
+    <label for="drawer-toggle" class="btn btn-square btn-ghost">
+      <i class="fa fa-bars"></i>
+    </label>
+  </div>
+  <div class="flex-1 px-2 mx-2 text-xl font-bold">PustakaPro</div>
+  <div class="flex-none">
+    <button class="btn btn-ghost" onclick="toggleTheme()"><i class="fa fa-moon"></i></button>
+  </div>
+</div>

@@ -1,37 +1,65 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Edit Book - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
-    <form method="post" action="/edit/<%= book.id %>?lang=<%= locale %>" enctype="multipart/form-data">
-        <label><%= __('title') %>:<br><input type="text" name="title" value="<%= book.title %>" required></label>
-        <label><%= __('author') %>:<br><input type="text" name="author" value="<%= book.author %>" required></label>
-        <label><%= __('year') %>:<br><input type="number" name="year" value="<%= book.year %>"></label>
-        <label><%= __('genre') %>:<br>
-            <select name="genre">
-                <% categories.forEach(function(g){ %>
-                    <option value="<%= g %>" <%= book.genre===g? 'selected': '' %>><%= g %></option>
-                <% }) %>
-            </select>
-        </label>
-        <label><%= __('status') %>:<br>
-            <select name="status">
-                <% statuses.forEach(function(s){ %>
-                    <option value="<%= s %>" <%= book.status===s? 'selected': '' %>><%= s %></option>
-                <% }) %>
-            </select>
-        </label>
-        <label><%= __('isbn') %>:<br><input type="text" name="isbn" value="<%= book.isbn %>"></label>
-        <label><%= __('description') %>:<br><textarea name="description"><%= book.description %></textarea></label>
-        <label><%= __('image') %>:<br><input type="file" name="image"></label>
-        <input type="hidden" name="currentImage" value="<%= book.image %>">
-        <button type="submit"><%= __('save') %></button>
-    </form>
+<%- include('partials/head', { title: 'Edit Book - PustakaPro', locale, userId, username, role, __ }) %>
+<% if (error) { %><script>window.flashMsg="<%= error %>"</script><% } %>
+<form method="post" action="/edit/<%= book.id %>?lang=<%= locale %>" enctype="multipart/form-data" class="space-y-2 max-w-xl">
+    <label class="form-control w-full">
+        <span class="label-text"><%= __('title') %></span>
+        <input type="text" name="title" value="<%= book.title %>" class="input input-bordered" required>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text"><%= __('author') %></span>
+        <input type="text" name="author" value="<%= book.author %>" class="input input-bordered" required>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text"><%= __('year') %></span>
+        <input type="number" name="year" value="<%= book.year %>" class="input input-bordered">
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text"><%= __('genre') %></span>
+        <select name="genre" class="select select-bordered">
+            <% categories.forEach(function(g){ %>
+                <option value="<%= g %>" <%= book.genre===g? 'selected': '' %>><%= g %></option>
+            <% }) %>
+        </select>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text"><%= __('status') %></span>
+        <select name="status" class="select select-bordered">
+            <% statuses.forEach(function(s){ %>
+                <option value="<%= s %>" <%= book.status===s? 'selected': '' %>><%= s %></option>
+            <% }) %>
+        </select>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text flex justify-between"><%= __('isbn') %> <button type="button" class="btn btn-xs" onclick="openScanner()"><i class="fa fa-qrcode"></i></button></span>
+        <input type="text" name="isbn" id="isbn" value="<%= book.isbn %>" class="input input-bordered">
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text"><%= __('description') %></span>
+        <textarea name="description" class="textarea textarea-bordered"><%= book.description %></textarea>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text"><%= __('image') %></span>
+        <input type="file" name="image" class="file-input file-input-bordered" />
+    </label>
+    <input type="hidden" name="currentImage" value="<%= book.image %>">
+    <button type="submit" class="btn btn-primary"><%= __('save') %></button>
+</form>
+<input type="checkbox" id="scan-modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-2"><%= __('isbn') %> QR</h3>
+    <div id="qr-reader" style="width:250px"></div>
+    <div class="modal-action">
+      <label for="scan-modal" class="btn"><%= __('close') %></label>
+    </div>
+  </div>
 </div>
-</body>
-</html>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+function openScanner(){
+  document.getElementById('scan-modal').checked=true;
+  const qr=new Html5Qrcode("qr-reader");
+  qr.start({facingMode:"environment"},{fps:10,qrbox:250},data=>{document.getElementById('isbn').value=data;qr.stop();document.getElementById('scan-modal').checked=false;});
+}
+</script>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>

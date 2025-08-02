@@ -1,0 +1,35 @@
+</div>
+    </div>
+    <div class="drawer-side">
+        <label for="drawer-toggle" class="drawer-overlay"></label>
+        <ul class="menu p-4 w-80 bg-base-200 text-base-content">
+            <li><a href="/?lang=<%= locale %>"><i class="fa fa-home"></i> <%= __('home') %></a></li>
+            <% if (userId) { %>
+            <li><a href="/dashboard?lang=<%= locale %>"><i class="fa fa-gauge"></i> <%= __('dashboard') %></a></li>
+            <li><a href="/profile?lang=<%= locale %>"><i class="fa fa-user"></i> <%= __('profile') %></a></li>
+            <% if (role === 'Librarian') { %>
+            <li><a href="/add?lang=<%= locale %>"><i class="fa fa-plus"></i> <%= __('add_book') %></a></li>
+            <li><a href="/reports?lang=<%= locale %>"><i class="fa fa-chart-column"></i> <%= __('reports') %></a></li>
+            <% } %>
+            <li><a href="/logout"><i class="fa fa-right-from-bracket"></i> <%= __('logout') %></a></li>
+            <% } else { %>
+            <li><a href="/login?lang=<%= locale %>"><i class="fa fa-sign-in-alt"></i> <%= __('login') %></a></li>
+            <li><a href="/register?lang=<%= locale %>"><i class="fa fa-user-plus"></i> <%= __('register') %></a></li>
+            <% } %>
+            <li class="mt-auto"><a href="?lang=en">EN</a> | <a href="?lang=id">ID</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+function toggleTheme(){
+  const html=document.documentElement;
+  const theme=html.getAttribute('data-theme')==='cupcake'?'business':'cupcake';
+  html.setAttribute('data-theme',theme);
+  localStorage.setItem('theme',theme);
+}
+const stored=localStorage.getItem('theme');
+if(stored){document.documentElement.setAttribute('data-theme',stored);}
+if(window.flashMsg){Swal.fire({text:window.flashMsg,icon:'info'});}
+</script>
+</body>
+</html>

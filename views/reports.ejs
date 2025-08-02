@@ -1,22 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Reports - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
-    <p>Total Books: <%= stats.books %></p>
-    <p>Total Users: <%= stats.users %></p>
-    <p>Books Borrowed: <%= stats.borrowed %></p>
-    <p>Overdue Loans: <%= stats.overdue %></p>
-    <ul>
-        <li><a href="/reports/popular">Book Popularity</a></li>
-        <li><a href="/reports/overdue">Overdue Books</a></li>
-        <li><a href="/reports/activity">User Activity Logs</a></li>
-    </ul>
+<%- include('partials/head', { title: 'Reports - PustakaPro', locale, userId, username, role, __ }) %>
+<% if (error) { %><script>window.flashMsg="<%= error %>"</script><% } %>
+<h2 class="text-xl mb-2">Library Statistics</h2>
+<div class="stats shadow mb-4">
+  <div class="stat">
+    <div class="stat-title">Books</div>
+    <div class="stat-value"><%= stats.books %></div>
+  </div>
+  <div class="stat">
+    <div class="stat-title">Borrowed</div>
+    <div class="stat-value"><%= stats.borrowed %></div>
+  </div>
+  <div class="stat">
+    <div class="stat-title">Overdue</div>
+    <div class="stat-value"><%= stats.overdue %></div>
+  </div>
 </div>
-</body>
-</html>
+<canvas id="statsChart" width="400" height="200" class="mb-4"></canvas>
+<div class="mb-4 space-x-2">
+  <a href="/reports/export/csv" class="btn btn-sm"><i class="fa fa-file-csv"></i> CSV</a>
+  <a href="/reports/export/pdf" class="btn btn-sm"><i class="fa fa-file-pdf"></i> PDF</a>
+</div>
+<ul class="list-disc pl-4">
+    <li><a href="/reports/popular">Book Popularity</a></li>
+    <li><a href="/reports/overdue">Overdue Books</a></li>
+    <li><a href="/reports/activity">User Activity Logs</a></li>
+</ul>
+<script>
+const ctx=document.getElementById('statsChart');
+new Chart(ctx,{type:'bar',data:{labels:['Books','Borrowed','Overdue'],datasets:[{label:'Count',data:[<%= stats.books %>,<%= stats.borrowed %>,<%= stats.overdue %>],backgroundColor:['#93c5fd','#a78bfa','#fca5a5']} ]}});
+</script>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>

@@ -1,19 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Book Popularity - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
-    <table>
-        <tr><th>Title</th><th>Times Borrowed</th></tr>
-        <% books.forEach(function(b){ %>
-            <tr><td><%= b.title %></td><td><%= b.count %></td></tr>
-        <% }) %>
-    </table>
-</div>
-</body>
-</html>
+<%- include('partials/head', { title: 'Book Popularity - PustakaPro', locale, userId, username, role, __ }) %>
+<h2 class="text-xl mb-2">Book Popularity</h2>
+<table class="table w-full">
+  <thead><tr><th>Title</th><th>Times Borrowed</th></tr></thead>
+  <tbody>
+  <% books.forEach(function(b){ %>
+    <tr><td><%= b.title %></td><td><%= b.count %></td></tr>
+  <% }) %>
+  </tbody>
+</table>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>

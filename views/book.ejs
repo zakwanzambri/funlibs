@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title><%= book.title %> - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
+<%- include('partials/head', { title: book.title + ' - PustakaPro', locale, userId, username, role, __ }) %>
+<% if (error) { %><script>window.flashMsg="<%= error %>"</script><% } %>
+<div class="max-w-2xl mx-auto">
     <% if(book.image){ %>
-        <p><img src="<%= book.image %>" alt="" width="120"></p>
+        <figure class="mb-4"><img src="<%= book.image %>" alt="" class="w-full" /></figure>
     <% } %>
     <p><strong>Author:</strong> <%= book.author %></p>
     <p><strong>Year:</strong> <%= book.year %></p>
@@ -20,24 +13,32 @@
         <p><strong>Description:</strong> <%= book.description %></p>
     <% } %>
     <% if (userId && book.status === 'Available') { %>
-        <p><a href="/borrow/<%= book.id %>?lang=<%= locale %>" class="button">Borrow this book</a></p>
+        <p><a href="/borrow/<%= book.id %>?lang=<%= locale %>" class="btn btn-primary mt-2">Borrow this book</a></p>
     <% } %>
     <% if(avg){ %>
-        <p><strong>Average Rating:</strong> <%= avg %>/5</p>
+        <p class="mt-4"><strong>Average Rating:</strong> <%= avg %>/5</p>
     <% } %>
-    <h2>Reviews</h2>
-    <ul>
+    <h2 class="text-xl mt-4 mb-2">Reviews</h2>
+    <ul class="space-y-1">
         <% reviews.forEach(function(r){ %>
             <li><strong><%= r.reviewer %></strong> rated <%= r.rating %>/5 - <%= r.comment %></li>
         <% }) %>
     </ul>
-    <h3>Add Review</h3>
-    <form method="post" action="/book/<%= book.id %>/review?lang=<%= locale %>">
-        <label>Name:<br><input type="text" name="reviewer" required></label>
-        <label>Rating:<br><input type="number" name="rating" min="1" max="5" required></label>
-        <label>Comment:<br><input type="text" name="comment" required></label>
-        <button type="submit">Submit</button>
+    <h3 class="text-lg mt-4">Add Review</h3>
+    <form method="post" action="/book/<%= book.id %>/review?lang=<%= locale %>" class="space-y-2">
+        <label class="form-control w-full">
+            <span class="label-text">Name</span>
+            <input type="text" name="reviewer" class="input input-bordered" required>
+        </label>
+        <label class="form-control w-full">
+            <span class="label-text">Rating</span>
+            <input type="number" name="rating" min="1" max="5" class="input input-bordered" required>
+        </label>
+        <label class="form-control w-full">
+            <span class="label-text">Comment</span>
+            <input type="text" name="comment" class="input input-bordered" required>
+        </label>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
-</body>
-</html>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>

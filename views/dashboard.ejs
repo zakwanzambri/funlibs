@@ -1,47 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
-    <% if (books.length === 0) { %>
-        <p>No books borrowed.</p>
-    <% } else { %>
-    <table>
-        <tr><th>Title</th><th>Author</th><th>Due Date</th><th>Fine</th><th>Action</th></tr>
-        <% books.forEach(function(b){ %>
-        <tr class="<%= b.overdue ? 'overdue' : '' %>">
+<%- include('partials/head', { title: 'Dashboard - PustakaPro', locale, userId, username, role, __ }) %>
+<% if (error) { %><script>window.flashMsg="<%= error %>"</script><% } %>
+<h2 class="text-xl mb-2"><%= __('dashboard') %></h2>
+<% if (books.length === 0) { %>
+    <p>No books borrowed.</p>
+<% } else { %>
+<table class="table w-full mb-4">
+    <thead>
+        <tr><th>Title</th><th>Author</th><th>Due Date</th><th>Fine</th><th></th></tr>
+    </thead>
+    <tbody>
+    <% books.forEach(function(b){ %>
+        <tr class="<%= b.overdue ? 'text-error' : '' %>">
             <td><%= b.title %></td>
             <td><%= b.author %></td>
             <td><%= new Date(b.due_date).toLocaleDateString() %></td>
             <td><%= b.fine %></td>
-            <td><a href="/return/<%= b.id %>" class="button">Return</a></td>
+            <td><a href="/return/<%= b.id %>" class="btn btn-xs">Return</a></td>
         </tr>
-        <% }) %>
-    </table>
-    <% } %>
-
-    <% if (reservations.length) { %>
-        <h2>Your Reservations</h2>
-        <table>
-            <tr><th>Title</th><th>Status</th><th>Action</th></tr>
-            <% reservations.forEach(function(r){ %>
-            <tr>
-                <td><%= r.title %></td>
-                <td><%= r.status %></td>
-                <td>
-                    <% if (r.status === 'Reserved') { %>
-                        <a href="/borrow/<%= r.id %>" class="button">Borrow</a>
-                    <% } %>
-                </td>
-            </tr>
-            <% }) %>
-        </table>
-    <% } %>
-</div>
-</body>
-</html>
+    <% }) %>
+    </tbody>
+</table>
+<% } %>
+<% if (reservations.length) { %>
+<h2 class="text-xl mt-4 mb-2">Your Reservations</h2>
+<table class="table w-full">
+    <thead>
+        <tr><th>Title</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+    <% reservations.forEach(function(r){ %>
+        <tr>
+            <td><%= r.title %></td>
+            <td><%= r.status %></td>
+            <td>
+                <% if (r.status === 'Reserved') { %>
+                <a href="/borrow/<%= r.id %>" class="btn btn-xs">Borrow</a>
+                <% } %>
+            </td>
+        </tr>
+    <% }) %>
+    </tbody>
+</table>
+<% } %>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>

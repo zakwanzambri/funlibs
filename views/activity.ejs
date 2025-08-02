@@ -1,23 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>User Activity - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
-    <table>
-        <tr><th>User</th><th>Action</th><th>Time</th></tr>
-        <% logs.forEach(function(l){ %>
-            <tr>
-                <td><%= l.username || 'Unknown' %></td>
-                <td><%= l.action %></td>
-                <td><%= new Date(l.created_at).toLocaleString() %></td>
-            </tr>
-        <% }) %>
-    </table>
-</div>
-</body>
-</html>
+<%- include('partials/head', { title: 'User Activity - PustakaPro', locale, userId, username, role, __ }) %>
+<h2 class="text-xl mb-2">User Activity</h2>
+<table class="table w-full">
+  <thead><tr><th>User</th><th>Action</th><th>Time</th></tr></thead>
+  <tbody>
+  <% logs.forEach(function(l){ %>
+    <tr>
+      <td><%= l.username || 'Unknown' %></td>
+      <td><%= l.action %></td>
+      <td><%= new Date(l.created_at).toLocaleString() %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>

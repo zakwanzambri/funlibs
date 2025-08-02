@@ -12,6 +12,7 @@ const fs = require('fs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const i18n = require('i18n');
+const PDFDocument = require('pdfkit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -490,6 +491,29 @@ app.get('/reports/activity', checkAuth, checkRole('Librarian'), (req, res) => {
     db.all('SELECT logs.action, logs.created_at, users.username FROM logs LEFT JOIN users ON users.id = logs.user_id ORDER BY logs.created_at DESC LIMIT 100', (err, rows) => {
         if (err) return res.status(500).send(err.toString());
         res.render('activity', { logs: rows });
+    });
+});
+
+app.get('/reports/export/:format', checkAuth, checkRole('Librarian'), (req, res) => {
+    db.all('SELECT title, author, status FROM books', (err, rows) => {
+        if (err) return res.status(500).send(err.toString());
+        if (req.params.format === 'csv') {
+            const csv = ['Title,Author,Status', ...rows.map(r => `${r.title},${r.author},${r.status}`)].join('\n');
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename="books.csv"');
+            res.send(csv);
+        } else if (req.params.format === 'pdf') {
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="books.pdf"');
+            const doc = new PDFDocument();
+            doc.pipe(res);
+            doc.fontSize(18).text('Books Report', { align: 'center' });
+            doc.moveDown();
+            rows.forEach(r => doc.fontSize(12).text(`${r.title} - ${r.author} (${r.status})`));
+            doc.end();
+        } else {
+            res.status(400).send('Unknown format');
+        }
     });
 });
 

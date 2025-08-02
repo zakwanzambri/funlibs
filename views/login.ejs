@@ -1,22 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Login - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div class="container">
-    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
-    <% if (error) { %>
-        <p class="error"><%= error %></p>
-    <% } %>
-    <form method="post" action="/login">
-        <label>Username:<br><input type="text" name="username" required></label>
-        <label>Password:<br><input type="password" name="password" required></label>
-        <button type="submit">Login</button>
-    </form>
-    <p><a href="/reset">Forgot password?</a></p>
-</div>
-</body>
-</html>
+<%- include('partials/head', { title: 'Login - PustakaPro', locale, userId, username, role, __ }) %>
+<% if (error) { %><script>window.flashMsg="<%= error %>"</script><% } %>
+<form method="post" action="/login" class="max-w-sm mx-auto space-y-2">
+    <label class="form-control w-full">
+        <span class="label-text">Username</span>
+        <input type="text" name="username" class="input input-bordered" required>
+    </label>
+    <label class="form-control w-full">
+        <span class="label-text">Password</span>
+        <input type="password" name="password" class="input input-bordered" required>
+    </label>
+    <button type="submit" class="btn btn-primary w-full">Login</button>
+    <a href="/reset" class="link">Forgot password?</a>
+</form>
+<%- include('partials/foot', { locale, userId, username, role, __ }) %>
