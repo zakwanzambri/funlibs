@@ -8,11 +8,35 @@ const helmet = require('helmet');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const fs = require('fs');
+const multer = require('multer');
+const nodemailer = require('nodemailer');
+const i18n = require('i18n');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DB_FILE = process.env.DB_FILE || 'library.db';
 const db = new sqlite3.Database(DB_FILE);
+
+// ensure upload directory exists
+const uploadDir = path.join(__dirname, 'public/uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const upload = multer({ dest: uploadDir });
+
+const transporter = nodemailer.createTransport(process.env.SMTP_HOST ? {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: false,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+} : { jsonTransport: true });
+
+i18n.configure({
+    locales: ['en', 'id'],
+    directory: path.join(__dirname, 'locales'),
+    defaultLocale: 'en',
+    queryParameter: 'lang'
+});
 
 const CATEGORIES = ['Fiction', 'Non-fiction', 'Science', 'Biography', 'Other'];
 const STATUSES = ['Available', 'Checked Out', 'Reserved'];
@@ -29,11 +53,13 @@ app.use(session({
 }));
 app.use(helmet());
 app.use(morgan('combined'));
+app.use(i18n.init);
 app.use((req, res, next) => {
     res.locals.userId = req.session.userId;
     res.locals.username = req.session.username;
     res.locals.role = req.session.role;
     res.locals.error = req.session.error;
+    res.locals.locale = req.getLocale();
     delete req.session.error;
     next();
 });
@@ -128,6 +154,26 @@ function log(userId, action) {
     if (!userId) return;
     db.run('INSERT INTO logs(user_id, action, created_at) VALUES (?, ?, ?)', [userId, action, new Date().toISOString()]);
 }
+
+function checkDueDates() {
+    const soon = new Date(Date.now() + 24*60*60*1000).toISOString();
+    const sql = `SELECT borrows.due_date, users.email, users.username, books.title
+                 FROM borrows JOIN users ON users.id = borrows.user_id
+                 JOIN books ON books.id = borrows.book_id
+                 WHERE borrows.returned=0 AND borrows.due_date <= ?`;
+    db.all(sql, [soon], (err, rows) => {
+        if (err) return;
+        rows.forEach(r => {
+            transporter.sendMail({
+                to: r.email,
+                from: process.env.SMTP_USER || 'noreply@example.com',
+                subject: `Book due soon: ${r.title}`,
+                text: `Hi ${r.username}, the book "${r.title}" is due on ${r.due_date}.`
+            });
+        });
+    });
+}
+setInterval(checkDueDates, 60*60*1000);
 
 // routes
 app.get('/', (req, res) => {
@@ -280,8 +326,9 @@ app.get('/add', checkAuth, checkRole('Librarian'), (req, res) => {
     res.render('add', { categories: CATEGORIES, statuses: STATUSES });
 });
 
-app.post('/add', checkAuth, checkRole('Librarian'), (req, res) => {
-    const { title, author, year, genre, isbn, status, image, description } = req.body;
+app.post('/add', checkAuth, checkRole('Librarian'), upload.single('image'), (req, res) => {
+    const { title, author, year, genre, isbn, status, description } = req.body;
+    const image = req.file ? '/uploads/' + req.file.filename : '';
     db.run('INSERT INTO books(title, author, year, genre, isbn, status, image, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [title, author, year, genre, isbn, status, image, description],
         (err) => {
@@ -298,9 +345,10 @@ app.get('/edit/:id', checkAuth, checkRole('Librarian'), (req, res) => {
     });
 });
 
-app.post('/edit/:id', checkAuth, checkRole('Librarian'), (req, res) => {
+app.post('/edit/:id', checkAuth, checkRole('Librarian'), upload.single('image'), (req, res) => {
     const id = req.params.id;
-    const { title, author, year, genre, isbn, status, image, description } = req.body;
+    const { title, author, year, genre, isbn, status, description, currentImage } = req.body;
+    const image = req.file ? '/uploads/' + req.file.filename : currentImage;
     db.run('UPDATE books SET title=?, author=?, year=?, genre=?, isbn=?, status=?, image=?, description=? WHERE id=?',
         [title, author, year, genre, isbn, status, image, description, id],
         (err) => {
@@ -425,6 +473,39 @@ app.get('/reports/activity', checkAuth, checkRole('Librarian'), (req, res) => {
     db.all('SELECT logs.action, logs.created_at, users.username FROM logs LEFT JOIN users ON users.id = logs.user_id ORDER BY logs.created_at DESC LIMIT 100', (err, rows) => {
         if (err) return res.status(500).send(err.toString());
         res.render('activity', { logs: rows });
+    });
+});
+
+// API endpoints
+app.get('/api/books', (req, res) => {
+    db.all('SELECT * FROM books', (err, rows) => {
+        if (err) return res.status(500).json({ error: err.toString() });
+        res.json(rows);
+    });
+});
+
+app.get('/api/books/:id', (req, res) => {
+    db.get('SELECT * FROM books WHERE id=?', [req.params.id], (err, row) => {
+        if (err) return res.status(500).json({ error: err.toString() });
+        if (!row) return res.status(404).json({ error: 'Not found' });
+        res.json(row);
+    });
+});
+
+// backup and restore
+app.get('/backup', checkAuth, checkRole('Librarian'), (req, res) => {
+    const backupFile = DB_FILE + '.bak';
+    fs.copyFile(DB_FILE, backupFile, err => {
+        if (err) return res.status(500).send(err.toString());
+        res.download(backupFile);
+    });
+});
+
+app.post('/restore', checkAuth, checkRole('Librarian'), (req, res) => {
+    const backupFile = DB_FILE + '.bak';
+    fs.copyFile(backupFile, DB_FILE, err => {
+        if (err) return res.status(500).send(err.toString());
+        res.send('Restore complete');
     });
 });
 

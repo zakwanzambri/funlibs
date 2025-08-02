@@ -8,38 +8,40 @@
 <body>
 <div class="container">
     <header>
-        <h1>Edit Book</h1>
+        <h1><%= __('edit_book') %></h1>
         <nav>
-            <a href="/" class="button">Home</a>
+            <a href="/?lang=<%= locale %>" class="button"><%= __('home') %></a>
             <span class="user">Welcome, <%= username %></span>
-            <a href="/dashboard" class="button">Dashboard</a>
-            <a href="/profile" class="button">Profile</a>
-            <a href="/reports" class="button">Reports</a>
-            <a href="/logout" class="button">Logout</a>
+            <a href="/dashboard?lang=<%= locale %>" class="button"><%= __('dashboard') %></a>
+            <a href="/profile?lang=<%= locale %>" class="button"><%= __('profile') %></a>
+            <a href="/reports?lang=<%= locale %>" class="button"><%= __('reports') %></a>
+            <a href="/logout" class="button"><%= __('logout') %></a>
+            <span class="lang"><a href="?lang=en">EN</a> | <a href="?lang=id">ID</a></span>
         </nav>
     </header>
-    <form method="post" action="/edit/<%= book.id %>">
-        <label>Title:<br><input type="text" name="title" value="<%= book.title %>" required></label>
-        <label>Author:<br><input type="text" name="author" value="<%= book.author %>" required></label>
-        <label>Year:<br><input type="number" name="year" value="<%= book.year %>"></label>
-        <label>Genre:<br>
+    <form method="post" action="/edit/<%= book.id %>?lang=<%= locale %>" enctype="multipart/form-data">
+        <label><%= __('title') %>:<br><input type="text" name="title" value="<%= book.title %>" required></label>
+        <label><%= __('author') %>:<br><input type="text" name="author" value="<%= book.author %>" required></label>
+        <label><%= __('year') %>:<br><input type="number" name="year" value="<%= book.year %>"></label>
+        <label><%= __('genre') %>:<br>
             <select name="genre">
                 <% categories.forEach(function(g){ %>
                     <option value="<%= g %>" <%= book.genre===g? 'selected': '' %>><%= g %></option>
                 <% }) %>
             </select>
         </label>
-        <label>Status:<br>
+        <label><%= __('status') %>:<br>
             <select name="status">
                 <% statuses.forEach(function(s){ %>
                     <option value="<%= s %>" <%= book.status===s? 'selected': '' %>><%= s %></option>
                 <% }) %>
             </select>
         </label>
-        <label>ISBN:<br><input type="text" name="isbn" value="<%= book.isbn %>"></label>
-        <label>Description:<br><textarea name="description"><%= book.description %></textarea></label>
-        <label>Image URL:<br><input type="text" name="image" value="<%= book.image %>"></label>
-        <button type="submit">Save</button>
+        <label><%= __('isbn') %>:<br><input type="text" name="isbn" value="<%= book.isbn %>"></label>
+        <label><%= __('description') %>:<br><textarea name="description"><%= book.description %></textarea></label>
+        <label><%= __('image') %>:<br><input type="file" name="image"></label>
+        <input type="hidden" name="currentImage" value="<%= book.image %>">
+        <button type="submit"><%= __('save') %></button>
     </form>
 </div>
 </body>

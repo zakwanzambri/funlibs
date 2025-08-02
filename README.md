@@ -32,6 +32,11 @@ PustakaPro is a lightweight library management web application built with **Node
 - Library statistics dashboard for librarians
 - Reports on book popularity and overdue items
 - User activity logs for auditing
+- JSON API endpoints for mobile integration
+- Upload book cover images directly
+- Email reminders for upcoming due dates
+- Backup and restore the SQLite database
+- Multi-language interface (English and Indonesian)
 
 ## Requirements
 
@@ -47,6 +52,7 @@ npm install
 
 Copy `.env.example` to `.env` and adjust settings if needed.
 Set `SESSION_SECRET` to any string for securing sessions.
+Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASS` to enable email notifications.
 
 Start the server:
 

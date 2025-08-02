@@ -10,17 +10,18 @@
     <header>
         <h1><%= book.title %></h1>
         <nav>
-            <a href="/" class="button">Home</a>
+            <a href="/?lang=<%= locale %>" class="button"><%= __('home') %></a>
             <% if (userId) { %>
                 <span class="user">Welcome, <%= username %></span>
-                <a href="/dashboard" class="button">Dashboard</a>
-                <a href="/profile" class="button">Profile</a>
+                <a href="/dashboard?lang=<%= locale %>" class="button"><%= __('dashboard') %></a>
+                <a href="/profile?lang=<%= locale %>" class="button"><%= __('profile') %></a>
                 <% if (role === 'Librarian') { %>
-                    <a href="/add" class="button">Add Book</a>
-                    <a href="/reports" class="button">Reports</a>
+                    <a href="/add?lang=<%= locale %>" class="button"><%= __('add_book') %></a>
+                    <a href="/reports?lang=<%= locale %>" class="button"><%= __('reports') %></a>
                 <% } %>
-                <a href="/logout" class="button">Logout</a>
+                <a href="/logout" class="button"><%= __('logout') %></a>
             <% } %>
+            <span class="lang"><a href="?lang=en">EN</a> | <a href="?lang=id">ID</a></span>
         </nav>
     </header>
     <% if(book.image){ %>
@@ -35,7 +36,7 @@
         <p><strong>Description:</strong> <%= book.description %></p>
     <% } %>
     <% if (userId && book.status === 'Available') { %>
-        <p><a href="/borrow/<%= book.id %>" class="button">Borrow this book</a></p>
+        <p><a href="/borrow/<%= book.id %>?lang=<%= locale %>" class="button">Borrow this book</a></p>
     <% } %>
     <% if(avg){ %>
         <p><strong>Average Rating:</strong> <%= avg %>/5</p>
@@ -47,7 +48,7 @@
         <% }) %>
     </ul>
     <h3>Add Review</h3>
-    <form method="post" action="/book/<%= book.id %>/review">
+    <form method="post" action="/book/<%= book.id %>/review?lang=<%= locale %>">
         <label>Name:<br><input type="text" name="reviewer" required></label>
         <label>Rating:<br><input type="number" name="rating" min="1" max="5" required></label>
         <label>Comment:<br><input type="text" name="comment" required></label>
