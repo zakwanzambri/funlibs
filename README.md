@@ -63,6 +63,8 @@ npm start
 
 The application defaults to `http://localhost:3000`. Use the `PORT` and `DB_FILE` variables in `.env` to customize.
 
+An initial librarian account is seeded with username `admin` and password `admin123` for first-time access.
+
 ## Database
 
 The first run will create a SQLite database file specified by `DB_FILE` (default `library.db`) if one does not already exist. This file is ignored by Git via `.gitignore`.

@@ -133,6 +133,16 @@ db.serialize(() => {
     db.run(reservationSql);
     db.run(reviewSql);
     db.run(logSql);
+
+    // seed default admin account
+    const adminHash = bcrypt.hashSync('admin123', 10);
+    db.get('SELECT id FROM users WHERE username=?', ['admin'], (err, row) => {
+        if (err) return console.error(err);
+        if (!row) {
+            db.run('INSERT INTO users(username, password, role, verified) VALUES (?, ?, ?, 1)',
+                ['admin', adminHash, 'Librarian']);
+        }
+    });
 });
 
 function checkAuth(req, res, next) {
