@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Book Popularity - PustakaPro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Book Popularity</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <span class="user">Welcome, <%= username %></span>
+            <a href="/reports" class="button">Reports</a>
+            <a href="/logout" class="button">Logout</a>
+        </nav>
+    </header>
+    <table>
+        <tr><th>Title</th><th>Times Borrowed</th></tr>
+        <% books.forEach(function(b){ %>
+            <tr><td><%= b.title %></td><td><%= b.count %></td></tr>
+        <% }) %>
+    </table>
+</div>
+</body>
+</html>

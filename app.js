@@ -91,6 +91,14 @@ const reviewSql = `CREATE TABLE IF NOT EXISTS reviews(
     FOREIGN KEY(book_id) REFERENCES books(id)
 );`;
 
+const logSql = `CREATE TABLE IF NOT EXISTS logs(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    action TEXT,
+    created_at TEXT,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);`;
+
 db.serialize(() => {
     db.run(bookSql);
     db.run(userSql);
@@ -98,6 +106,7 @@ db.serialize(() => {
     db.run("ALTER TABLE borrows ADD COLUMN due_date TEXT", () => {});
     db.run(reservationSql);
     db.run(reviewSql);
+    db.run(logSql);
 });
 
 function checkAuth(req, res, next) {
@@ -113,6 +122,11 @@ function checkRole(role) {
         if (req.session.role === role) return next();
         res.status(403).send('Forbidden');
     };
+}
+
+function log(userId, action) {
+    if (!userId) return;
+    db.run('INSERT INTO logs(user_id, action, created_at) VALUES (?, ?, ?)', [userId, action, new Date().toISOString()]);
 }
 
 // routes
@@ -181,6 +195,7 @@ app.post('/login', (req, res) => {
             req.session.userId = user.id;
             req.session.username = user.username;
             req.session.role = user.role;
+            log(user.id, 'login');
             return res.redirect('/');
         }
         req.session.error = 'Invalid credentials';
@@ -317,6 +332,7 @@ app.get('/borrow/:id', checkAuth, (req, res) => {
         due.setDate(due.getDate() + LOAN_DAYS);
         db.run('UPDATE books SET status="Checked Out" WHERE id=?', [id]);
         db.run('INSERT INTO borrows(user_id, book_id, due_date) VALUES (?, ?, ?)', [req.session.userId, id, due.toISOString()]);
+        log(req.session.userId, 'borrow ' + id);
         res.redirect('/dashboard');
     });
 });
@@ -331,6 +347,7 @@ app.get('/reserve/:id', checkAuth, (req, res) => {
             const now = new Date().toISOString();
             db.run('INSERT INTO reservations(user_id, book_id, created_at) VALUES (?, ?, ?)', [req.session.userId, id, now], err3 => {
                 if (!err3) db.run('UPDATE books SET status="Reserved" WHERE id=?', [id]);
+                log(req.session.userId, 'reserve ' + id);
                 res.redirect('/dashboard');
             });
         });
@@ -343,6 +360,7 @@ app.get('/return/:id', checkAuth, (req, res) => {
         const newStatus = r ? 'Reserved' : 'Available';
         db.run('UPDATE books SET status=? WHERE id=?', [newStatus, id]);
         db.run('UPDATE borrows SET returned=1 WHERE user_id=? AND book_id=? AND returned=0', [req.session.userId, id]);
+        log(req.session.userId, 'return ' + id);
         res.redirect('/dashboard');
     });
 });
@@ -365,6 +383,48 @@ app.post('/book/:id/review', (req, res) => {
     db.run('INSERT INTO reviews(book_id, reviewer, rating, comment) VALUES (?, ?, ?, ?)', [id, reviewer, rating, comment], err => {
         if (err) return res.status(500).send(err.toString());
         res.redirect(`/book/${id}`);
+    });
+});
+
+app.get('/reports', checkAuth, checkRole('Librarian'), (req, res) => {
+    db.get('SELECT COUNT(*) AS c FROM books', (err, b) => {
+        if (err) return res.status(500).send(err.toString());
+        db.get('SELECT COUNT(*) AS c FROM users', (err2, u) => {
+            if (err2) return res.status(500).send(err2.toString());
+            db.get('SELECT COUNT(*) AS c FROM borrows WHERE returned=0', (err3, br) => {
+                if (err3) return res.status(500).send(err3.toString());
+                db.get('SELECT COUNT(*) AS c FROM borrows WHERE returned=0 AND due_date < ?', [new Date().toISOString()], (err4, od) => {
+                    if (err4) return res.status(500).send(err4.toString());
+                    res.render('reports', { stats: { books: b.c, users: u.c, borrowed: br.c, overdue: od.c } });
+                });
+            });
+        });
+    });
+});
+
+app.get('/reports/popular', checkAuth, checkRole('Librarian'), (req, res) => {
+    db.all('SELECT books.title, COUNT(borrows.id) AS count FROM books LEFT JOIN borrows ON books.id = borrows.book_id GROUP BY books.id ORDER BY count DESC', (err, rows) => {
+        if (err) return res.status(500).send(err.toString());
+        res.render('popular', { books: rows });
+    });
+});
+
+app.get('/reports/overdue', checkAuth, checkRole('Librarian'), (req, res) => {
+    const now = new Date().toISOString();
+    db.all('SELECT books.title, users.username, borrows.due_date FROM borrows JOIN books ON books.id = borrows.book_id JOIN users ON users.id = borrows.user_id WHERE borrows.returned=0 AND borrows.due_date < ?', [now], (err, rows) => {
+        if (err) return res.status(500).send(err.toString());
+        rows.forEach(r => {
+            const d = new Date(r.due_date);
+            r.days = Math.ceil((Date.now() - d.getTime())/86400000);
+        });
+        res.render('overdue', { items: rows });
+    });
+});
+
+app.get('/reports/activity', checkAuth, checkRole('Librarian'), (req, res) => {
+    db.all('SELECT logs.action, logs.created_at, users.username FROM logs LEFT JOIN users ON users.id = logs.user_id ORDER BY logs.created_at DESC LIMIT 100', (err, rows) => {
+        if (err) return res.status(500).send(err.toString());
+        res.render('activity', { logs: rows });
     });
 });
 

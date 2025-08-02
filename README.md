@@ -29,6 +29,9 @@ PustakaPro is a lightweight library management web application built with **Node
 - Environment driven configuration with `.env`
 - Production middleware for logging, security headers and error pages
 - Custom 404 page for missing routes
+- Library statistics dashboard for librarians
+- Reports on book popularity and overdue items
+- User activity logs for auditing
 
 ## Requirements
 

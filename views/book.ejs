@@ -15,6 +15,10 @@
                 <span class="user">Welcome, <%= username %></span>
                 <a href="/dashboard" class="button">Dashboard</a>
                 <a href="/profile" class="button">Profile</a>
+                <% if (role === 'Librarian') { %>
+                    <a href="/add" class="button">Add Book</a>
+                    <a href="/reports" class="button">Reports</a>
+                <% } %>
                 <a href="/logout" class="button">Logout</a>
             <% } %>
         </nav>

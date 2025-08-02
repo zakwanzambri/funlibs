@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Overdue Books - PustakaPro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Overdue Books</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <span class="user">Welcome, <%= username %></span>
+            <a href="/reports" class="button">Reports</a>
+            <a href="/logout" class="button">Logout</a>
+        </nav>
+    </header>
+    <table>
+        <tr><th>Title</th><th>User</th><th>Due Date</th><th>Days Overdue</th></tr>
+        <% items.forEach(function(i){ %>
+            <tr>
+                <td><%= i.title %></td>
+                <td><%= i.username %></td>
+                <td><%= new Date(i.due_date).toLocaleDateString() %></td>
+                <td><%= i.days %></td>
+            </tr>
+        <% }) %>
+    </table>
+</div>
+</body>
+</html>
