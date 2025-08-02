@@ -7,18 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1><%= __('edit_book') %></h1>
-        <nav>
-            <a href="/?lang=<%= locale %>" class="button"><%= __('home') %></a>
-            <span class="user">Welcome, <%= username %></span>
-            <a href="/dashboard?lang=<%= locale %>" class="button"><%= __('dashboard') %></a>
-            <a href="/profile?lang=<%= locale %>" class="button"><%= __('profile') %></a>
-            <a href="/reports?lang=<%= locale %>" class="button"><%= __('reports') %></a>
-            <a href="/logout" class="button"><%= __('logout') %></a>
-            <span class="lang"><a href="?lang=en">EN</a> | <a href="?lang=id">ID</a></span>
-        </nav>
-    </header>
+    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
     <form method="post" action="/edit/<%= book.id %>?lang=<%= locale %>" enctype="multipart/form-data">
         <label><%= __('title') %>:<br><input type="text" name="title" value="<%= book.title %>" required></label>
         <label><%= __('author') %>:<br><input type="text" name="author" value="<%= book.author %>" required></label>

@@ -26,6 +26,7 @@ PustakaPro is a lightweight library management web application built with **Node
 - Librarian view of all members
 - Roles for Librarian, Member and Guest control access
 - Modern EJS interface with navigation and styling
+- Reusable navigation bar and responsive layout for a consistent experience on mobile and desktop
 - Environment driven configuration with `.env`
 - Production middleware for logging, security headers and error pages
 - Custom 404 page for missing routes

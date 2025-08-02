@@ -7,13 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>Register</h1>
-        <nav>
-            <a href="/" class="button">Home</a>
-            <a href="/login" class="button">Login</a>
-        </nav>
-    </header>
+    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
     <% if (error) { %>
         <p class="error"><%= error %></p>
     <% } %>

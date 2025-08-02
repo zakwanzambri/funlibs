@@ -7,13 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>Reset Password</h1>
-        <nav>
-            <a href="/" class="button">Home</a>
-            <a href="/login" class="button">Login</a>
-        </nav>
-    </header>
+    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
     <form method="post" action="/reset">
         <label>Email:<br><input type="text" name="email" required></label>
         <button type="submit">Send Reset Link</button>

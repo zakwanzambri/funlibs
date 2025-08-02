@@ -7,15 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>User Activity Logs</h1>
-        <nav>
-            <a href="/" class="button">Home</a>
-            <span class="user">Welcome, <%= username %></span>
-            <a href="/reports" class="button">Reports</a>
-            <a href="/logout" class="button">Logout</a>
-        </nav>
-    </header>
+    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
     <table>
         <tr><th>User</th><th>Action</th><th>Time</th></tr>
         <% logs.forEach(function(l){ %>

@@ -7,18 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>Your Borrowed Books</h1>
-        <nav>
-            <a href="/" class="button">Home</a>
-            <span class="user">Welcome, <%= username %></span>
-            <a href="/profile" class="button">Profile</a>
-            <% if (role === 'Librarian') { %>
-                <a href="/reports" class="button">Reports</a>
-            <% } %>
-            <a href="/logout" class="button">Logout</a>
-        </nav>
-    </header>
+    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
     <% if (books.length === 0) { %>
         <p>No books borrowed.</p>
     <% } else { %>

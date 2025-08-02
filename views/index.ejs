@@ -7,28 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>PustakaPro</h1>
-        <nav>
-            <a href="/?lang=<%= locale %>" class="button"><%= __('home') %></a>
-            <% if (userId) { %>
-                <span class="user">Welcome, <%= username %></span>
-                <a href="/dashboard?lang=<%= locale %>" class="button"><%= __('dashboard') %></a>
-                <a href="/profile?lang=<%= locale %>" class="button"><%= __('profile') %></a>
-                <% if (role === 'Librarian') { %>
-                    <a href="/add?lang=<%= locale %>" class="button"><%= __('add_book') %></a>
-                    <a href="/reports?lang=<%= locale %>" class="button"><%= __('reports') %></a>
-                <% } %>
-                <a href="/logout" class="button"><%= __('logout') %></a>
-            <% } else { %>
-                <a href="/login?lang=<%= locale %>" class="button"><%= __('login') %></a>
-                <a href="/register?lang=<%= locale %>" class="button"><%= __('register') %></a>
-            <% } %>
-            <span class="lang">
-                <a href="?lang=en">EN</a> | <a href="?lang=id">ID</a>
-            </span>
-        </nav>
-    </header>
+    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
     <form method="get" action="/">
         <input type="hidden" name="lang" value="<%= locale %>">
         <input type="text" name="q" value="<%= query %>" placeholder="<%= __('search') %>">

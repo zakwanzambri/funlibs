@@ -7,23 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1><%= book.title %></h1>
-        <nav>
-            <a href="/?lang=<%= locale %>" class="button"><%= __('home') %></a>
-            <% if (userId) { %>
-                <span class="user">Welcome, <%= username %></span>
-                <a href="/dashboard?lang=<%= locale %>" class="button"><%= __('dashboard') %></a>
-                <a href="/profile?lang=<%= locale %>" class="button"><%= __('profile') %></a>
-                <% if (role === 'Librarian') { %>
-                    <a href="/add?lang=<%= locale %>" class="button"><%= __('add_book') %></a>
-                    <a href="/reports?lang=<%= locale %>" class="button"><%= __('reports') %></a>
-                <% } %>
-                <a href="/logout" class="button"><%= __('logout') %></a>
-            <% } %>
-            <span class="lang"><a href="?lang=en">EN</a> | <a href="?lang=id">ID</a></span>
-        </nav>
-    </header>
+    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
     <% if(book.image){ %>
         <p><img src="<%= book.image %>" alt="" width="120"></p>
     <% } %>

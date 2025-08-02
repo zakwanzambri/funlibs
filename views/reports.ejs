@@ -7,18 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>Library Reports</h1>
-        <nav>
-            <a href="/" class="button">Home</a>
-            <span class="user">Welcome, <%= username %></span>
-            <a href="/dashboard" class="button">Dashboard</a>
-            <a href="/profile" class="button">Profile</a>
-            <a href="/add" class="button">Add Book</a>
-            <a href="/reports" class="button">Reports</a>
-            <a href="/logout" class="button">Logout</a>
-        </nav>
-    </header>
+    <%- include('partials/nav', { locale, userId, username, role, __ }) %>
     <p>Total Books: <%= stats.books %></p>
     <p>Total Users: <%= stats.users %></p>
     <p>Books Borrowed: <%= stats.borrowed %></p>
