@@ -20,6 +20,10 @@ PustakaPro is a lightweight library management web application built with **Node
 - Email verification before login
 - Password reset flow via unique links
 - Dashboard shows the books each user has borrowed
+- Book checkout and return with 14 day due dates
+- Overdue tracking and daily fines
+- Reserve books that are checked out
+- Librarian view of all members
 - Roles for Librarian, Member and Guest control access
 - Modern EJS interface with navigation and styling
 - Environment driven configuration with `.env`

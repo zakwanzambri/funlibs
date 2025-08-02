@@ -61,7 +61,9 @@
                                 <button type="submit">Delete</button>
                             </form>
                         <% } %>
-                        <% if (book.status === 'Available') { %>
+                        <% if (book.status === 'Checked Out') { %>
+                            <a href="/reserve/<%= book.id %>" class="button">Reserve</a>
+                        <% } else { %>
                             <a href="/borrow/<%= book.id %>" class="button">Borrow</a>
                         <% } %>
                     <% } %>

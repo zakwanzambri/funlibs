@@ -16,6 +16,7 @@ const db = new sqlite3.Database(DB_FILE);
 
 const CATEGORIES = ['Fiction', 'Non-fiction', 'Science', 'Biography', 'Other'];
 const STATUSES = ['Available', 'Checked Out', 'Reserved'];
+const LOAN_DAYS = 14;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -66,7 +67,17 @@ const borrowSql = `CREATE TABLE IF NOT EXISTS borrows(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     book_id INTEGER,
+    due_date TEXT,
     returned INTEGER DEFAULT 0,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(book_id) REFERENCES books(id)
+);`;
+
+const reservationSql = `CREATE TABLE IF NOT EXISTS reservations(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    book_id INTEGER UNIQUE,
+    created_at TEXT,
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(book_id) REFERENCES books(id)
 );`;
@@ -84,6 +95,8 @@ db.serialize(() => {
     db.run(bookSql);
     db.run(userSql);
     db.run(borrowSql);
+    db.run("ALTER TABLE borrows ADD COLUMN due_date TEXT", () => {});
+    db.run(reservationSql);
     db.run(reviewSql);
 });
 
@@ -189,11 +202,28 @@ app.get('/profile', checkAuth, (req, res) => {
 });
 
 app.get('/dashboard', checkAuth, (req, res) => {
-    db.all('SELECT books.* FROM borrows JOIN books ON books.id=borrows.book_id WHERE borrows.user_id=? AND borrows.returned=0',
+    db.all('SELECT books.*, borrows.due_date FROM borrows JOIN books ON books.id=borrows.book_id WHERE borrows.user_id=? AND borrows.returned=0',
         [req.session.userId], (err, rows) => {
             if (err) return res.status(500).send(err.toString());
-            res.render('dashboard', { books: rows });
+            rows.forEach(r => {
+                const d = new Date(r.due_date);
+                const diff = Math.ceil((Date.now() - d.getTime())/86400000);
+                r.overdue = diff > 0;
+                r.fine = r.overdue ? diff : 0;
+            });
+            db.all('SELECT books.* FROM reservations JOIN books ON books.id=reservations.book_id WHERE reservations.user_id=?',
+                [req.session.userId], (err2, resRows) => {
+                    if (err2) return res.status(500).send(err2.toString());
+                    res.render('dashboard', { books: rows, reservations: resRows });
+                });
         });
+});
+
+app.get('/members', checkAuth, checkRole('Librarian'), (req, res) => {
+    db.all('SELECT id, username, email, contact, role FROM users', (err, rows) => {
+        if (err) return res.status(500).send(err.toString());
+        res.render('members', { members: rows });
+    });
 });
 
 app.get('/verify/:token', (req, res) => {
@@ -276,18 +306,45 @@ app.get('/borrow/:id', checkAuth, (req, res) => {
     const id = req.params.id;
     db.get('SELECT status FROM books WHERE id=?', [id], (err, book) => {
         if (err || !book) return res.status(404).render('404');
-        if (book.status !== 'Available') return res.redirect('/');
+        if (book.status === 'Checked Out') return res.redirect('/');
+        if (book.status === 'Reserved') {
+            db.get('SELECT user_id FROM reservations WHERE book_id=?', [id], (e2, r) => {
+                if (e2 || !r || r.user_id !== req.session.userId) return res.redirect('/');
+                db.run('DELETE FROM reservations WHERE book_id=?', [id]);
+            });
+        }
+        const due = new Date();
+        due.setDate(due.getDate() + LOAN_DAYS);
         db.run('UPDATE books SET status="Checked Out" WHERE id=?', [id]);
-        db.run('INSERT INTO borrows(user_id, book_id) VALUES (?, ?)', [req.session.userId, id]);
+        db.run('INSERT INTO borrows(user_id, book_id, due_date) VALUES (?, ?, ?)', [req.session.userId, id, due.toISOString()]);
         res.redirect('/dashboard');
+    });
+});
+
+app.get('/reserve/:id', checkAuth, (req, res) => {
+    const id = req.params.id;
+    db.get('SELECT status FROM books WHERE id=?', [id], (err, book) => {
+        if (err || !book) return res.status(404).render('404');
+        if (book.status === 'Reserved') return res.redirect('/');
+        db.get('SELECT * FROM reservations WHERE book_id=?', [id], (e2, r) => {
+            if (e2 || r) return res.redirect('/');
+            const now = new Date().toISOString();
+            db.run('INSERT INTO reservations(user_id, book_id, created_at) VALUES (?, ?, ?)', [req.session.userId, id, now], err3 => {
+                if (!err3) db.run('UPDATE books SET status="Reserved" WHERE id=?', [id]);
+                res.redirect('/dashboard');
+            });
+        });
     });
 });
 
 app.get('/return/:id', checkAuth, (req, res) => {
     const id = req.params.id;
-    db.run('UPDATE books SET status="Available" WHERE id=?', [id]);
-    db.run('UPDATE borrows SET returned=1 WHERE user_id=? AND book_id=? AND returned=0', [req.session.userId, id]);
-    res.redirect('/dashboard');
+    db.get('SELECT user_id FROM reservations WHERE book_id=?', [id], (err, r) => {
+        const newStatus = r ? 'Reserved' : 'Available';
+        db.run('UPDATE books SET status=? WHERE id=?', [newStatus, id]);
+        db.run('UPDATE borrows SET returned=1 WHERE user_id=? AND book_id=? AND returned=0', [req.session.userId, id]);
+        res.redirect('/dashboard');
+    });
 });
 
 app.get('/book/:id', (req, res) => {

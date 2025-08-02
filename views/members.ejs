@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Members - PustakaPro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Library Members</h1>
+        <nav>
+            <a href="/" class="button">Home</a>
+            <span class="user">Welcome, <%= username %></span>
+            <a href="/logout" class="button">Logout</a>
+        </nav>
+    </header>
+    <table>
+        <tr><th>Username</th><th>Email</th><th>Contact</th><th>Role</th></tr>
+        <% members.forEach(function(m){ %>
+        <tr>
+            <td><%= m.username %></td>
+            <td><%= m.email %></td>
+            <td><%= m.contact %></td>
+            <td><%= m.role %></td>
+        </tr>
+        <% }) %>
+    </table>
+</div>
+</body>
+</html>
