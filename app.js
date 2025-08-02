@@ -215,7 +215,14 @@ app.post('/register', async (req, res) => {
             }
             return res.status(500).send(err.toString());
         }
-        req.session.error = `Registration successful. Verify via /verify/${verifyToken}`;
+        const verifyUrl = `${req.protocol}://${req.get('host')}/verify/${verifyToken}`;
+        transporter.sendMail({
+            to: email,
+            from: process.env.SMTP_USER || 'noreply@example.com',
+            subject: 'Verify your PustakaPro account',
+            text: `Hi ${username}, please verify your account by visiting: ${verifyUrl}`
+        });
+        req.session.error = 'Registration successful. Check your email for a verification link.';
         res.redirect('/login');
     });
 });
