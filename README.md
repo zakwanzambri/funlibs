@@ -1,52 +1,51 @@
-# PustakaPro
+# FunLibs
 
-PustakaPro is a lightweight library management web application built with **Node.js**, **Express**, and **SQLite**. It offers a minimal interface to keep track of your books.
+FunLibs is a Library Management System built with **Next.js 14** (App Router), **TypeScript**, **TailwindCSS**, and **MongoDB**. It supports authentication with NextAuth, multi-language (EN/BM) with next-intl, book CRUD with image cover, borrow/return workflow with automatic due dates and fine calculation, analytics dashboard powered by Chart.js, and email notifications via SMTP. The UI is responsive, dark mode enabled, and ready to deploy on Vercel.
 
 ## Features
 
-- View all stored books
-- Search books by title or author
-- Add new books with title, author and optional publication year
-- Edit or delete existing entries
-- View details of individual books
-- Simple EJS views and CSS for quick customization
-- Production middleware for logging and security
-
-## Requirements
-
-- [Node.js](https://nodejs.org/) 18 or later
+- 🔐 Authentication with roles (Admin, Staff, Student) using NextAuth.js
+- 📚 Book management (create, update, delete, upload cover via drag & drop)
+- 🔄 Borrow & Return with automatic due date and fine calculation
+- 📊 Analytics dashboard using Chart.js
+- 🌐 Multi-language support (English & Bahasa Melayu) using next-intl
+- ✉️ Email notifications for due dates and fines using SMTP (Nodemailer)
+- 🎨 Modern responsive design with TailwindCSS and dark mode
+- ♻️ Reusable UI components (Button, Modal, Table, Form)
+- 📁 Modular folder structure (components, services, utils)
 
 ## Getting Started
 
-Install dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-Copy `.env.example` to `.env` and adjust settings if needed.
+2. Create `.env` from `.env.example` and set the environment variables.
 
-Start the server:
+3. Run the development server:
 
 ```bash
-npm start
+npm run dev
 ```
 
-The application defaults to `http://localhost:3000`. Use the `PORT` and `DB_FILE` variables in `.env` to customize.
-
-## Usage
-
-- Search for books using the form on the home page.
-- Click a book's **View** button to see its details.
-
-## Database
-
-The first run will create a SQLite database file specified by `DB_FILE` (default `library.db`) if one does not already exist. This file is ignored by Git via `.gitignore`.
+Open <http://localhost:3000> in your browser.
 
 ## Project Structure
 
-- `app.js` – main Express application
-- `views/` – EJS templates for the pages
-- `public/style.css` – modern styling
+- `app/` – Next.js App Router pages and API routes
+- `components/` – Reusable UI components
+- `models/` – Mongoose models
+- `services/` – Data access helpers
+- `utils/` – Utility functions (mailer, date helpers)
+- `messages/` – Localization files
+- `public/` – Static assets
 
-Additional production middleware includes logging with **morgan** and security headers via **helmet**. A simple 404 page and error handler are also provided.
+## Deployment
+
+The project is configured for deployment on [Vercel](https://vercel.com/). Push to a GitHub repository and import into Vercel, or use the `vercel` CLI.
+
+## License
+
+MIT
