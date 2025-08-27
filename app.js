@@ -15,6 +15,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(helmet());
 app.use(morgan('combined'));
 
@@ -28,6 +29,21 @@ const initSql = `CREATE TABLE IF NOT EXISTS books(
 
 db.run(initSql, (err) => {
     if (err) console.error('Failed to initialize database', err);
+});
+
+// initialize borrows table
+const borrowSql = `CREATE TABLE IF NOT EXISTS borrows(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    book_id INTEGER,
+    user_id TEXT,
+    borrowDate TEXT,
+    dueDate TEXT,
+    returnDate TEXT,
+    fine REAL DEFAULT 0
+);`;
+
+db.run(borrowSql, (err) => {
+    if (err) console.error('Failed to initialize borrows table', err);
 });
 
 // routes
@@ -96,6 +112,10 @@ app.post('/delete/:id', (req, res) => {
         res.redirect('/');
     });
 });
+
+// borrow management routes
+app.use('/api/borrows', require('./app/api/borrows'));
+app.use('/borrows', require('./app/borrows'));
 
 // 404 handler
 app.use((req, res) => {

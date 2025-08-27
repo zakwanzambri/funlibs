@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Borrow Records</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <h1>Borrow Records</h1>
+
+  <h2>Borrow a Book</h2>
+  <form action="/borrows/borrow" method="POST">
+    <input type="number" name="bookId" placeholder="Book ID" required />
+    <input type="text" name="userId" placeholder="User ID" required />
+    <button type="submit">Borrow</button>
+  </form>
+
+  <h2>Current Borrows</h2>
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>ID</th>
+      <th>Book ID</th>
+      <th>User ID</th>
+      <th>Borrow Date</th>
+      <th>Due Date</th>
+      <th>Return Date</th>
+      <th>Fine</th>
+      <th>Action</th>
+    </tr>
+    <% borrows.forEach(b => { %>
+      <tr>
+        <td><%= b.id %></td>
+        <td><%= b.book_id %></td>
+        <td><%= b.user_id %></td>
+        <td><%= b.borrowDate %></td>
+        <td><%= b.dueDate %></td>
+        <td><%= b.returnDate || '' %></td>
+        <td><%= b.fine %></td>
+        <td>
+          <% if (!b.returnDate) { %>
+            <form action="/borrows/return/<%= b.id %>" method="POST">
+              <button type="submit">Return</button>
+            </form>
+          <% } %>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+
+  <p><a href="/">Back to home</a></p>
+</body>
+</html>
