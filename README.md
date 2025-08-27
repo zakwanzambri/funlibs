@@ -1,6 +1,6 @@
 # PustakaPro
 
-PustakaPro is a lightweight library management web application built with **Node.js**, **Express**, and **SQLite**. It offers a minimal interface to keep track of your books.
+PustakaPro is a lightweight library management web application built with **Node.js**, **Express**, and **MongoDB**. It offers a minimal interface to keep track of your books.
 
 ## Features
 
@@ -26,13 +26,19 @@ npm install
 
 Copy `.env.example` to `.env` and adjust settings if needed.
 
+Build locally:
+
+```bash
+npm run build
+```
+
 Start the server:
 
 ```bash
 npm start
 ```
 
-The application defaults to `http://localhost:3000`. Use the `PORT` and `DB_FILE` variables in `.env` to customize.
+The application defaults to `http://localhost:3000`. Use the `PORT`, `MONGODB_URI`, and `MONGODB_DB` variables in `.env` to customize.
 
 ## Usage
 
@@ -41,7 +47,7 @@ The application defaults to `http://localhost:3000`. Use the `PORT` and `DB_FILE
 
 ## Database
 
-The first run will create a SQLite database file specified by `DB_FILE` (default `library.db`) if one does not already exist. This file is ignored by Git via `.gitignore`.
+The app connects to MongoDB using `MONGODB_URI` and `MONGODB_DB` environment variables. When deploying to Vercel, set these in the project settings. No local database files are created.
 
 ## Project Structure
 
@@ -50,3 +56,22 @@ The first run will create a SQLite database file specified by `DB_FILE` (default
 - `public/style.css` – modern styling
 
 Additional production middleware includes logging with **morgan** and security headers via **helmet**. A simple 404 page and error handler are also provided.
+
+## Deployment
+
+This project can be deployed on [Vercel](https://vercel.com/):
+
+1. In your Vercel project, define `MONGODB_URI` and `MONGODB_DB` environment variables. Optionally define `PORT`.
+2. Run a local build to verify:
+
+   ```bash
+   npm run build
+   ```
+
+3. Deploy using the [Vercel CLI](https://vercel.com/docs/cli):
+
+   ```bash
+   vercel --prod
+   ```
+
+Static images can be hosted from the `public/` directory. For user-uploaded images, use a Vercel-supported solution such as [Vercel Blob](https://vercel.com/blob) or an external provider like Amazon S3.
