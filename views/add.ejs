@@ -1,24 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html class="dark">
 <head>
-    <meta charset="UTF-8">
-    <title>Add Book - PustakaPro</title>
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8" />
+  <title>Add Book - PustakaPro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
-<div class="container">
-    <header>
-        <h1>Add Book</h1>
-        <nav>
-            <a href="/" class="button">Home</a>
-        </nav>
-    </header>
-    <form method="post" action="/add">
-        <label>Title:<br><input type="text" name="title" required></label>
-        <label>Author:<br><input type="text" name="author" required></label>
-        <label>Year:<br><input type="number" name="year"></label>
-        <button type="submit">Add</button>
-    </form>
-</div>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div id="root"></div>
+  <script type="text/babel" data-type="module" data-presets="react,typescript">
+    import Button from '/components/ui/Button.tsx';
+    import Form from '/components/ui/Form.tsx';
+
+    const App = () => {
+      const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        // allow normal form submission to server
+      };
+
+      return (
+        <div className="max-w-md mx-auto p-4">
+          <header className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold">Add Book</h1>
+            <nav>
+              <Button onClick={() => window.location.href = '/'}>Home</Button>
+            </nav>
+          </header>
+          <Form method="post" action="/add" onSubmit={handleSubmit} submitLabel="Add">
+            <label className="block">
+              <span className="block mb-1">Title</span>
+              <input name="title" required className="w-full p-2 border dark:border-gray-600 rounded" />
+            </label>
+            <label className="block">
+              <span className="block mb-1">Author</span>
+              <input name="author" required className="w-full p-2 border dark:border-gray-600 rounded" />
+            </label>
+            <label className="block">
+              <span className="block mb-1">Year</span>
+              <input name="year" type="number" className="w-full p-2 border dark:border-gray-600 rounded" />
+            </label>
+          </Form>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 </html>
