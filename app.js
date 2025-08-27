@@ -5,6 +5,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const scheduler = require('./lib/scheduler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(helmet());
 app.use(morgan('combined'));
 
-// initialize database table
+// initialize database tables
 const initSql = `CREATE TABLE IF NOT EXISTS books(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
@@ -26,8 +27,20 @@ const initSql = `CREATE TABLE IF NOT EXISTS books(
     year INTEGER
 );`;
 
-db.run(initSql, (err) => {
-    if (err) console.error('Failed to initialize database', err);
+const borrowSql = `CREATE TABLE IF NOT EXISTS borrows(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bookId INTEGER NOT NULL,
+    userEmail TEXT NOT NULL,
+    dueDate TEXT NOT NULL,
+    locale TEXT DEFAULT 'en',
+    fine REAL DEFAULT 0,
+    returned INTEGER DEFAULT 0,
+    FOREIGN KEY(bookId) REFERENCES books(id)
+);`;
+
+db.serialize(() => {
+    db.run(initSql);
+    db.run(borrowSql);
 });
 
 // routes
@@ -95,6 +108,51 @@ app.post('/delete/:id', (req, res) => {
         if (err) return res.status(500).send(err.toString());
         res.redirect('/');
     });
+});
+
+// borrow a book
+app.post('/borrow', (req, res) => {
+    const { bookId, userEmail, dueDate, locale } = req.body;
+    db.run('INSERT INTO borrows(bookId, userEmail, dueDate, locale) VALUES(?, ?, ?, ?)',
+        [bookId, userEmail, dueDate, locale || 'en'], function (err) {
+            if (err) return res.status(500).send(err.toString());
+            // fetch book title for email templates
+            db.get('SELECT title FROM books WHERE id = ?', [bookId], (e2, row) => {
+                if (e2) return res.status(500).send(e2.toString());
+                scheduler.scheduleBorrowReminder({
+                    id: this.lastID,
+                    bookId,
+                    title: row ? row.title : '',
+                    userEmail,
+                    dueDate,
+                    locale: locale || 'en'
+                }, parseInt(process.env.REMINDER_DAYS || '3', 10));
+                res.redirect('/');
+            });
+        });
+});
+
+// impose a fine on a borrow
+app.post('/borrows/:id/fine', (req, res) => {
+    const id = req.params.id;
+    const amount = Number(req.body.amount || 0);
+    db.get(
+        'SELECT b.*, bk.title FROM borrows b JOIN books bk ON b.bookId = bk.id WHERE b.id = ?',
+        [id],
+        (err, borrow) => {
+            if (err) return res.status(500).send(err.toString());
+            if (!borrow) return res.status(404).send('Borrow not found');
+            db.run('UPDATE borrows SET fine = ? WHERE id = ?', [amount, id], (e2) => {
+                if (e2) return res.status(500).send(e2.toString());
+                scheduler.scheduleFineNotice({
+                    title: borrow.title,
+                    userEmail: borrow.userEmail,
+                    locale: borrow.locale
+                }, amount);
+                res.send('Fine imposed');
+            });
+        }
+    );
 });
 
 // 404 handler
