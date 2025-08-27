@@ -14,6 +14,7 @@ const db = new sqlite3.Database(DB_FILE);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/components', express.static(path.join(__dirname, 'components')));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(helmet());
 app.use(morgan('combined'));
