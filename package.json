@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "echo \"No tests\""
   },
   "keywords": [],
   "author": "",
@@ -17,6 +19,20 @@
     "sqlite3": "^5.1.7",
     "dotenv": "^16.3.1",
     "helmet": "^7.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "next": "^13.5.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "mongoose": "^7.6.0",
+    "react-hook-form": "^7.45.1",
+    "zod": "^3.22.4",
+    "@hookform/resolvers": "^3.3.0",
+    "react-dropzone": "^14.2.3",
+    "@vercel/blob": "^0.7.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/react": "^18.2.21",
+    "@types/node": "^20.8.2"
   }
 }
